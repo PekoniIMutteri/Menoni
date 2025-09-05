@@ -1,4 +1,5 @@
 mod app;
+mod macros;
 mod menu;
 
 pub use app::App;

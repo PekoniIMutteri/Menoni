@@ -51,15 +51,7 @@ impl Menu<MyData> for Main {
         data: &mut MyData,
         event: crossterm::event::Event,
     ) -> Option<Box<dyn Menu<MyData>>> {
-        if let Event::Key(a) = event
-            && a.is_press()
-        {
-            if a.code == KeyCode::Char('q') {
-                data.running = false;
-            } else if a.code == KeyCode::Char('m') {
-                return Some(Box::new(Message));
-            }
-        }
+        keyboard_inputs!(self, data, event, 'q', quit, 'm', switch_to_message);
         None
     }
 }
@@ -79,15 +71,26 @@ impl Menu<MyData> for Message {
         )
     }
     fn handle_event(&mut self, data: &mut MyData, event: Event) -> Option<Box<dyn Menu<MyData>>> {
-        if let Event::Key(a) = event
-            && a.is_press()
-        {
-            if a.code == KeyCode::Char('q') {
-                data.running = false;
-            } else if a.code == KeyCode::Char('m') {
-                return Some(Box::new(Main));
-            }
-        }
+        keyboard_inputs!(self, data, event, 'm', switch_to_main, 'q', quit);
         None
     }
+}
+
+fn quit<T: Menu<MyData>>(_menu: &mut T, data: &mut MyData) -> Option<Box<dyn Menu<MyData>>> {
+    data.running = false;
+    None
+}
+
+fn switch_to_main<T: Menu<MyData>>(
+    _menu: &mut T,
+    _data: &mut MyData,
+) -> Option<Box<dyn Menu<MyData>>> {
+    Some(Box::new(Main))
+}
+
+fn switch_to_message<T: Menu<MyData>>(
+    _menu: &mut T,
+    _data: &mut MyData,
+) -> Option<Box<dyn Menu<MyData>>> {
+    Some(Box::new(Message))
 }
