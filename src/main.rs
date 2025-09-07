@@ -1,6 +1,6 @@
 use crossterm::{
     cursor::MoveTo,
-    event::{Event, KeyCode},
+    event::Event,
     execute,
     style::Print,
     terminal::{Clear, ClearType, size},
@@ -9,8 +9,8 @@ use menoni::*;
 
 fn main() {
     println!("Hello World !");
-    let mut app = App::new(MyData::default(), Box::new(Main));
-    app.main_loop().unwrap();
+    let mut app = App::new(MyData::default(), Box::new(Main), "HELLO");
+    app.run().unwrap();
     println!("Goodbye !");
 }
 
@@ -29,8 +29,17 @@ impl Default for MyData {
 }
 
 impl Data for MyData {
-    fn running(&self) -> bool {
+    fn is_running(&self) -> bool {
         self.running
+    }
+    fn should_display_name(&self) -> bool {
+        true
+    }
+    fn from_saved(_bytes: &[u8]) -> std::io::Result<Self> {
+        Ok(MyData::default())
+    }
+    fn save(&self) -> Vec<u8> {
+        vec![]
     }
 }
 
@@ -51,8 +60,16 @@ impl Menu<MyData> for Main {
         data: &mut MyData,
         event: crossterm::event::Event,
     ) -> Option<Box<dyn Menu<MyData>>> {
-        keyboard_inputs!(self, data, event, 'q', quit, 'm', switch_to_message);
-        None
+        //keyboard_inputs!(self, data, event, 'q', quit, 'm', switch_to_message);
+        keyboard_inputs(
+            self,
+            data,
+            event,
+            vec![('q', quit::<Self>), ('m', switch_to_message::<Self>)],
+        )
+    }
+    fn title(&self) -> Option<&str> {
+        Some("MAIN MENU")
     }
 }
 
@@ -71,8 +88,15 @@ impl Menu<MyData> for Message {
         )
     }
     fn handle_event(&mut self, data: &mut MyData, event: Event) -> Option<Box<dyn Menu<MyData>>> {
-        keyboard_inputs!(self, data, event, 'm', switch_to_main, 'q', quit);
-        None
+        keyboard_inputs(
+            self,
+            data,
+            event,
+            vec![('m', switch_to_main::<Self>), ('q', quit::<Self>)],
+        )
+    }
+    fn title(&self) -> Option<&str> {
+        Some("MESSAGE")
     }
 }
 

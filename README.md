@@ -19,4 +19,7 @@ menoni = { "path" = "<path-to-menoni>" }
 
 ## Roadmap
 
-I want to add some macros to associate functions with inputs more easily.
+I want to get rid of that macro. Don't use macros.
+
+But other than that, I want to be able to automatically save the data to a file,
+and load that data on the next launch.
